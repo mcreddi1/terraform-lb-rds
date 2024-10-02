@@ -26,11 +26,30 @@ module "frontend_sg" {
   common_tags  = var.common_tags
 }
 
+
+module "bastion_sg" {
+  source       = "git::https://github.com/mcreddi1/terraform-aws-sg.git?ref=main"
+  environment  = var.environment
+  project_name = var.project_name
+  sg_name      = "bastion"
+  vpc_id       = local.vpc_id
+  common_tags  = var.common_tags
+}
+
 module "ansible_sg" {
   source       = "git::https://github.com/mcreddi1/terraform-aws-sg.git?ref=main"
   environment  = var.environment
   project_name = var.project_name
   sg_name      = "ansible"
+  vpc_id       = local.vpc_id
+  common_tags  = var.common_tags
+}
+
+module "app_alb_sg" {
+  source       = "git::https://github.com/mcreddi1/terraform-aws-sg.git?ref=main"
+  environment  = var.environment
+  project_name = var.project_name
+  sg_name      = "app_alb_sg"
   vpc_id       = local.vpc_id
   common_tags  = var.common_tags
 }
@@ -46,32 +65,32 @@ resource "aws_security_group_rule" "mysql_backend" {
 }
 
 #backend Allowing connection on 8080 port from the instances attached to frontend SG 
-resource "aws_security_group_rule" "backend_frontend" {
-  type                     = "ingress"
-  to_port                  = 8080
-  from_port                = 8080
-  protocol                 = "tcp"
-  source_security_group_id = module.frontend_sg.id
-  security_group_id        = module.backend_sg.id
-}
+# resource "aws_security_group_rule" "backend_frontend" {
+#   type                     = "ingress"
+#   to_port                  = 8080
+#   from_port                = 8080
+#   protocol                 = "tcp"
+#   source_security_group_id = module.frontend_sg.id
+#   security_group_id        = module.backend_sg.id
+# }
 
 #frontend Allowing connection on 80 port from the instances attached to   frontnedSG 
-resource "aws_security_group_rule" "frontend_public" {
-  type              = "ingress"
-  to_port           = 80
-  from_port         = 80
-  protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = module.frontend_sg.id
-}
+# resource "aws_security_group_rule" "frontend_public" {
+#   type              = "ingress"
+#   to_port           = 80
+#   from_port         = 80
+#   protocol          = "tcp"
+#   cidr_blocks       = ["0.0.0.0/0"]
+#   security_group_id = module.frontend_sg.id
+# }
 
-module "bastion_sg" {
-  source       = "git::https://github.com/mcreddi1/terraform-aws-sg.git?ref=main"
-  environment  = var.environment
-  project_name = var.project_name
-  sg_name      = "bastion"
-  vpc_id       = local.vpc_id
-  common_tags  = var.common_tags
+resource "aws_security_group_rule" "mysql_bastion" {
+  type                     = "ingress"
+  to_port                  = 3306
+  from_port                = 3306
+  protocol                 = "tcp"
+  source_security_group_id = module.bastion_sg.id
+  security_group_id        = module.mysql_sg.id
 }
 
 resource "aws_security_group_rule" "frontend_bastion" {
@@ -92,23 +111,14 @@ resource "aws_security_group_rule" "backend_bastion" {
   security_group_id        = module.backend_sg.id
 }
 
-resource "aws_security_group_rule" "mysql_bastion" {
-  type                     = "ingress"
-  to_port                  = 22
-  from_port                = 22
-  protocol                 = "tcp"
-  source_security_group_id = module.bastion_sg.id
-  security_group_id        = module.mysql_sg.id
-}
-
-resource "aws_security_group_rule" "mysql_ansible" {
-  type                     = "ingress"
-  to_port                  = 22
-  from_port                = 22
-  protocol                 = "tcp"
-  source_security_group_id = module.ansible_sg.id
-  security_group_id        = module.mysql_sg.id
-}
+# resource "aws_security_group_rule" "mysql_ansible" {
+#   type                     = "ingress"
+#   to_port                  = 22
+#   from_port                = 22
+#   protocol                 = "tcp"
+#   source_security_group_id = module.ansible_sg.id
+#   security_group_id        = module.mysql_sg.id
+# }
 
 resource "aws_security_group_rule" "frontend_ansible" {
   type                     = "ingress"
@@ -144,4 +154,22 @@ resource "aws_security_group_rule" "bastion_public" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = module.bastion_sg.id
+}
+
+resource "aws_security_group_rule" "backend_app_alb" {
+  type              = "ingress"
+  to_port           = 8080
+  from_port         = 8080
+  protocol          = "tcp"
+  source_security_group_id = module.app_alb_sg.id
+  security_group_id = module.backend_sg.id
+}
+
+resource "aws_security_group_rule" "app_alb_bastion" {
+  type              = "ingress"
+  to_port           = 80
+  from_port         = 80
+  protocol          = "tcp"
+  source_security_group_id = module.bastion_sg.id
+  security_group_id = module.app_alb_sg.id
 }
