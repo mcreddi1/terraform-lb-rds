@@ -8,14 +8,8 @@ variable "project_name" {
 
 variable "common_tags" {
   default = {
-    Project     = "expense"
+    Project     = "Terraform"
     Terraform   = "True"
     Environment = "Dev"
-  }
-}
-
-variable "mysql_sg_tags" {
-  default = {
-    component = "mysql"
   }
 }

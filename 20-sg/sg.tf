@@ -1,5 +1,5 @@
 module "mysql_sg" {
-  source       = "../../terraform-aws-sg"
+  source       = "git::https://github.com/mcreddi1/terraform-aws-sg.git?ref=main"
   environment  = var.environment
   project_name = var.project_name
   sg_name      = "mysql"
@@ -9,7 +9,7 @@ module "mysql_sg" {
 }
 
 module "backend_sg" {
-  source       = "../../terraform-aws-sg"
+  source       = "git::https://github.com/mcreddi1/terraform-aws-sg.git?ref=main"
   environment  = var.environment
   project_name = var.project_name
   sg_name      = "backend"
@@ -18,7 +18,7 @@ module "backend_sg" {
 }
 
 module "frontend_sg" {
-  source       = "../../terraform-aws-sg"
+  source       = "git::https://github.com/mcreddi1/terraform-aws-sg.git?ref=main"
   environment  = var.environment
   project_name = var.project_name
   sg_name      = "frontend"
@@ -27,7 +27,7 @@ module "frontend_sg" {
 }
 
 module "ansible_sg" {
-  source       = "../../terraform-aws-sg"
+  source       = "git::https://github.com/mcreddi1/terraform-aws-sg.git?ref=main"
   environment  = var.environment
   project_name = var.project_name
   sg_name      = "ansible"
@@ -66,7 +66,7 @@ resource "aws_security_group_rule" "frontend_public" {
 }
 
 module "bastion_sg" {
-  source       = "../../terraform-aws-sg"
+  source       = "git::https://github.com/mcreddi1/terraform-aws-sg.git?ref=main"
   environment  = var.environment
   project_name = var.project_name
   sg_name      = "bastion"
@@ -75,57 +75,57 @@ module "bastion_sg" {
 }
 
 resource "aws_security_group_rule" "frontend_bastion" {
-  type              = "ingress"
-  to_port           = 22
-  from_port         = 22
-  protocol          = "tcp"
+  type                     = "ingress"
+  to_port                  = 22
+  from_port                = 22
+  protocol                 = "tcp"
   source_security_group_id = module.bastion_sg.id
-  security_group_id = module.frontend_sg.id
+  security_group_id        = module.frontend_sg.id
 }
 
 resource "aws_security_group_rule" "backend_bastion" {
-  type              = "ingress"
-  to_port           = 22
-  from_port         = 22
-  protocol          = "tcp"
+  type                     = "ingress"
+  to_port                  = 22
+  from_port                = 22
+  protocol                 = "tcp"
   source_security_group_id = module.bastion_sg.id
-  security_group_id = module.backend_sg.id
+  security_group_id        = module.backend_sg.id
 }
 
 resource "aws_security_group_rule" "mysql_bastion" {
-  type              = "ingress"
-  to_port           = 22
-  from_port         = 22
-  protocol          = "tcp"
+  type                     = "ingress"
+  to_port                  = 22
+  from_port                = 22
+  protocol                 = "tcp"
   source_security_group_id = module.bastion_sg.id
-  security_group_id = module.mysql_sg.id
+  security_group_id        = module.mysql_sg.id
 }
 
 resource "aws_security_group_rule" "mysql_ansible" {
-  type              = "ingress"
-  to_port           = 22
-  from_port         = 22
-  protocol          = "tcp"
+  type                     = "ingress"
+  to_port                  = 22
+  from_port                = 22
+  protocol                 = "tcp"
   source_security_group_id = module.ansible_sg.id
-  security_group_id = module.mysql_sg.id
+  security_group_id        = module.mysql_sg.id
 }
 
 resource "aws_security_group_rule" "frontend_ansible" {
-  type              = "ingress"
-  to_port           = 22
-  from_port         = 22
-  protocol          = "tcp"
+  type                     = "ingress"
+  to_port                  = 22
+  from_port                = 22
+  protocol                 = "tcp"
   source_security_group_id = module.ansible_sg.id
-  security_group_id = module.frontend_sg.id
+  security_group_id        = module.frontend_sg.id
 }
 
 resource "aws_security_group_rule" "backend_ansible" {
-  type              = "ingress"
-  to_port           = 22
-  from_port         = 22
-  protocol          = "tcp"
+  type                     = "ingress"
+  to_port                  = 22
+  from_port                = 22
+  protocol                 = "tcp"
   source_security_group_id = module.ansible_sg.id
-  security_group_id = module.backend_sg.id
+  security_group_id        = module.backend_sg.id
 }
 
 resource "aws_security_group_rule" "ansible_public" {
