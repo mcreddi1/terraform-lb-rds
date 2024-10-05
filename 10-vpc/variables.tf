@@ -3,13 +3,13 @@ variable "environment" {
 }
 
 variable "project_name" {
-    default = "expense"
+  default = "expense"
 }
 
 variable "common_tags" {
   default = {
-    Project = "Terraform"
-    Terraform = "True"
+    Project     = "Terraform"
+    Terraform   = "True"
     Environment = "Dev"
   }
 }
@@ -27,5 +27,5 @@ variable "database_subnet_cidrs" {
 }
 
 variable "is_peering_required" {
-    default = true
+  default = true
 }
