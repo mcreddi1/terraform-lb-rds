@@ -7,20 +7,16 @@ data "aws_ssm_parameter" "public_subnet_ids" {
 }
 
 data "aws_ami" "chinna" {
-
   most_recent = true
-  owners      = ["679593333241"]
-
+  owners      = ["973714476881"]
   filter {
     name   = "name"
-    values = ["OpenVPN Access Server Community Image-fe8020db-*"]
+    values = ["RHEL-9-DevOps-Practice"]
   }
-
   filter {
     name   = "root-device-type"
     values = ["ebs"]
   }
-
   filter {
     name   = "virtualization-type"
     values = ["hvm"]
